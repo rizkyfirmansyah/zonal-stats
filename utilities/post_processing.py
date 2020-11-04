@@ -22,7 +22,6 @@ def value_to_tcd_year(value):
         7: [{'tcd': '51-75 %', 'sub': 280}],
         8: [{'tcd': '76-100 %', 'sub': 320}]
     }
-
     # divide the coded value by interval. if its 1.175, use int to get 1
     div = int(value / 40)
 

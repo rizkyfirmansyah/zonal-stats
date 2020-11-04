@@ -11,12 +11,8 @@ def remap_threshold(geodatabase, threshold):
     this_dir = os.path.dirname(os.path.abspath(__file__))
     remap_func = os.path.join(this_dir, "remap_gt" + str(threshold) + ".rft.xml")
     tcd_mosaic = os.path.join(geodatabase, "tcd")
-    print("TCD {}".format(tcd_mosaic))
-    print("Remap Function {}".format(remap_func))
-    try:
-        arcpy.EditRasterFunction_management(tcd_mosaic, "EDIT_MOSAIC_DATASET", "REPLACE", remap_func)
-    except arcpy.ExecuteError:
-        print("Error edit raster function - {}".format(arcpy.GetMessages()))
+
+    arcpy.EditRasterFunction_management(tcd_mosaic, "EDIT_MOSAIC_DATASET", "REPLACE", remap_func)
 
 
 def output_ras_table(input_raster, avg_pix_size):
@@ -25,10 +21,7 @@ def output_ras_table(input_raster, avg_pix_size):
 
     # build raster attribute table
     print("build raster table")
-    try:
-        arcpy.BuildRasterAttributeTable_management(input_raster, "Overwrite")
-    except arcpy.ExecuteError:
-        print("Error building raster table - {}".format(arcpy.GetMessages()))
+    arcpy.BuildRasterAttributeTable_management(input_raster, "Overwrite")
 
     # write attribute table to text file, while calculating area
     raster_text = os.path.join(this_dir, "raster_table.csv")

@@ -27,9 +27,14 @@ Make sure you have the latest version of Numpy and Panda and install the followi
 pip install numpy --upgrade
 pip install panda --upgrade
 pip install SQLAlchemy
-pip install simpledbf
+conda install -c conda-forge geopandas
 pip install tables
 ```
+
+`Make sure your libgdal and gdal are in the same version. Say, your gdal==2.3.3 and libgdal==2.3.3 to make it work`
+Check with
+import geopandas
+import fiona
 
 PyTables requires several drivers which should come with HDF5. To make sure, everything is correctly configured, 
 open your Python console and type in 

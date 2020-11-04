@@ -23,7 +23,6 @@ config_dict = config['inputs']
 
 # analysis: forest_extent, forest_loss, biomass_weight, emissions
 analysis = [x.strip() for x in config_dict['analysis'].split(",")]
-print(analysis)
 shapefile = config_dict['shapefile']
 threshold = config_dict['threshold']
 geodatabase = config_dict['geodatabase']
@@ -73,8 +72,8 @@ if l.emissions is not None:
 
 # join possible tables (loss, emissions, extent, etc) and decode to loss year, tcd
 try:
-    l.join_tables(user_def_column_name, output_file_name)
+    l.join_tables(threshold, user_def_column_name, output_file_name)
     logging.debug(("elapsed time: {}".format(datetime.datetime.now() - start)))
 finally:
     print('Shutdown your computer in a couple of seconds\n')
-    # os.system("shutdown /s /t 1")
+    os.system("shutdown /s /t 1")
