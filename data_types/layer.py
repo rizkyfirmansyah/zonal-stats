@@ -1,5 +1,4 @@
 import os
-# import simpledbf
 import pandas as pd
 import arcpy
 import sys
@@ -21,7 +20,6 @@ class Layer(object):
         self.source_id_col = source_id_col
 
         self.final_aoi = None
-
         self.emissions = None
         self.forest_loss = None
         self.biomass_weight = None
@@ -33,12 +31,14 @@ class Layer(object):
 
     # these are all the things i want to do with the input shapefile. this is called from zonal_stats.py
     def project_source_aoi(self):
+
         arcpy.env.overwriteOutput = True
         out_cs = arcpy.SpatialReference(4326)
         self.final_aoi = os.path.join(self.root_dir, 'shapefile', "project.shp")
         arcpy.Project_management(self.source_aoi, self.final_aoi, out_cs)
 
     def join_tables(self, user_def_column_name, output_file_name):
+
         print("joining tables \n")
 
         # make a list of all the tables we have. These are already dataframes
@@ -73,10 +73,8 @@ class Layer(object):
 
         # get the input shapefile into df format
         final_aoi_dbf = self.final_aoi.replace(".shp", ".dbf")
-        # final_aoi_dbf = simpledbf.Dbf5(final_aoi_dbf)
 
         # convert dbf to pandas dataframe
-        # final_aoi_df = final_aoi_dbf.to_dataframe()
         final_aoi_df = zstats_handler.gdf2pd(final_aoi_dbf)
 
         # reset index of final_aoi_df

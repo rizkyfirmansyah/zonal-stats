@@ -1,6 +1,5 @@
 import pandas as pd
 
-
 def user_cols(user_def_column_name, final_aoi_df, merged, analysis_names):
     # to keep columns from getting too long:
     new_cols = []

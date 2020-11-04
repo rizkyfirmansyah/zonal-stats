@@ -11,11 +11,8 @@ def intersect_file(intersect_file, intersect_col=None):
                       'adm0': """!FC_NAME! +"_"+!ISO!"""}
 
     try:
-
         return intersect_calc[intersect_aoi_basename]
-
     except:
-
         print("user defined intersect field")
         exp = """!FC_NAME!+"_"+str(!{}!)""".format(str(intersect_col))
 
@@ -51,6 +48,7 @@ def zonal_stats_mask(final_aoi, i):
 def delete_database():
     tables_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     zstats_results_db = os.path.join(tables_dir, 'tables', 'zstats_results_db.db')
+    
     if os.path.exists(zstats_results_db):
         print("deleting database")
         os.remove(zstats_results_db)

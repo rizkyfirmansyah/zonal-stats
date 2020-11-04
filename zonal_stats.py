@@ -2,24 +2,28 @@ import os
 import datetime
 import sys
 import logging
-# configure log file
+import configparser
+
 logging.basicConfig(filename='log_zonal_stats.log', level=logging.DEBUG, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 logging.getLogger().addHandler(logging.StreamHandler())
 
 from data_types.layer import Layer
 from data_types.raster import Raster
 from raster_functions import raster_prep
-from utilities import zstats_handler, post_processing, prep_shapefile, config_parser
+from utilities import zstats_handler, post_processing, prep_shapefile
 
 start = datetime.datetime.now()
 logging.debug("\n\nHello! This is the beginning of the log")
 
 # get user inputs from config file:
 config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config_file.ini")
-config_dict = config_parser.read_config(config_file)
+config = configparser.ConfigParser()
+config.read(config_file)
+config_dict = config['inputs']
 
 # analysis: forest_extent, forest_loss, biomass_weight, emissions
 analysis = [x.strip() for x in config_dict['analysis'].split(",")]
+print(analysis)
 shapefile = config_dict['shapefile']
 threshold = config_dict['threshold']
 geodatabase = config_dict['geodatabase']

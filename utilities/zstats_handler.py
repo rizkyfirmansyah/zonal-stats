@@ -55,8 +55,6 @@ def zstats(start, stop, final_aoi, cellsize, value, zone, analysis):
         print("debug:time elapsed: {}".format(end_time))
 
         # convert the output zstats table into a pandas DF
-        # dbf = simpledbf.Dbf5(z_stats_tbl)
-        # df = dbf.to_dataframe()
         df = gdf2pd(z_stats_tbl)
 
         # populate a new field "id" with the FID and analysis with the sum
@@ -77,7 +75,6 @@ def zstats(start, stop, final_aoi, cellsize, value, zone, analysis):
 
         # delete these because they create a lock
         del df
-        # del dbf
         os.remove(z_stats_tbl)
 
         # reset these environments. Otherwise the shapefile is redefined based on features within the extent
@@ -102,8 +99,6 @@ def main_script(layer, raster):
     stop = end_id
 
     logging.debug("Number of features: {}".format(end_id))
-    print("ZONE {}".format(raster.zone))
-    print("VALUE {}".format(raster.value))
     zstats_subprocess = zstats(start_id, end_id, layer.final_aoi, raster.cellsize, raster.value, raster.zone, raster.analysis)
 
     # run using python3
@@ -132,13 +127,9 @@ def main_script(layer, raster):
             # We need to keep track of this in case a feature fails so we can skip it
 
             if b'debug' in line:
-
                 pass
-
             else:
-
                 if b'process succeeded' in line:
-
                     feature_status[start_id] = True
                     start_id += 1
 
