@@ -3,7 +3,6 @@ import numpy as np
 import math
 import arcpy
 
-
 def intersect_file(intersect_file, intersect_col=None):
 
     intersect_aoi_basename = os.path.basename(intersect_file)

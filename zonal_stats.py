@@ -1,6 +1,6 @@
 import os
 import datetime
-
+import sys
 import logging
 # configure log file
 logging.basicConfig(filename='log_zonal_stats.log', level=logging.DEBUG, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
@@ -52,7 +52,7 @@ for analysis_name in analysis_requested:
     # create raster object.
     r = Raster(analysis_name, geodatabase)
 
-    # run zstats, put results into sql db. 
+    # run zstats, put results into sql db.
     zstats_handler.main_script(l, r)
 
     # get results from sql to pandas df
@@ -68,6 +68,9 @@ if l.emissions is not None:
     l.emissions = post_processing.biomass_to_mtc02(l)
 
 # join possible tables (loss, emissions, extent, etc) and decode to loss year, tcd
-l.join_tables(threshold, user_def_column_name, output_file_name)
-
-logging.debug(("elapsed time: {}".format(datetime.datetime.now() - start)))
+try:
+    l.join_tables(user_def_column_name, output_file_name)
+    logging.debug(("elapsed time: {}".format(datetime.datetime.now() - start)))
+finally:
+    print('Shutdown your computer in a couple of seconds\n')
+    # os.system("shutdown /s /t 1")

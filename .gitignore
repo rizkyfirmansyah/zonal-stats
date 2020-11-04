@@ -65,6 +65,9 @@ config/hot_export_token.txt
 #pycharm
 .idea/
 
+#vscode
+.vscode/
+
 *.lock
 *.mxd
 *.mxd

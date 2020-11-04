@@ -22,9 +22,8 @@ def user_cols(user_def_column_name, final_aoi_df, merged, analysis_names):
 
     # join zstats to shapefile
     joined = pd.merge(merged, final_aoi_df, left_on='ID', right_on='aoi_ID')
-
     columns_to_keep = [user_def_column_name]
-    columns_to_keep.extend(['tcd', 'year'])
+    columns_to_keep.extend(['VALUE'])
     columns_to_keep.extend(analysis_names)
 
     return joined[columns_to_keep]

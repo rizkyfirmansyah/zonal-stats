@@ -1,9 +1,10 @@
 import os
-import simpledbf
+# import simpledbf
 import pandas as pd
 import arcpy
 import sys
 
+from utilities import zstats_handler
 from utilities import post_processing, final_columns
 
 
@@ -37,15 +38,13 @@ class Layer(object):
         self.final_aoi = os.path.join(self.root_dir, 'shapefile', "project.shp")
         arcpy.Project_management(self.source_aoi, self.final_aoi, out_cs)
 
-    def join_tables(self, threshold, user_def_column_name, output_file_name):
+    def join_tables(self, user_def_column_name, output_file_name):
         print("joining tables \n")
 
         # make a list of all the tables we have. These are already dataframes
         possible_dfs = [self.emissions, self.forest_loss, self.biomass_weight, self.forest_extent]
-
         # get rid of df's we don't have
         df_list = [x for x in possible_dfs if x is not None]
-
         # how to get column names to keep? like extent, emissions, loss? i'm going through and getting
         # third column for each df which is the analysis name
         analysis_names = [x.columns.values[3] for x in df_list]
@@ -72,28 +71,13 @@ class Layer(object):
         merged = pd.concat([df.set_index(['VALUE', 'ID']) for df in df_list], axis=1)
         merged = merged.reset_index()
 
-        # To 2 get outputs from a single function and apply to 2 different columns in the dataframe:
-        # http://stackoverflow.com/questions/12356501/pandas-create-two-new-columns-in-a-dataframe-with-
-        # values-calculated-from-a-pre?rq=1
-        # tcd and year columns is equal to the first and second output from the function: value_to_tcd_year
-
-        try:
-            merged['tcd'], merged['year'] = list(zip(*merged["VALUE"].map(post_processing.value_to_tcd_year)))
-        except KeyError:
-            print("oops, loss mosaic doesn't have the arithmetic function applied. Refer to readme file")
-            sys.exit()
-
-        # the value_to_tcd_year function is good for when user runs all thresholds, but not just one.
-        # so, overwrite the tcd column when it comes back
-        if threshold != "all":
-            merged['tcd'] = "> {}%".format(threshold)
-
         # get the input shapefile into df format
         final_aoi_dbf = self.final_aoi.replace(".shp", ".dbf")
-        final_aoi_dbf = simpledbf.Dbf5(final_aoi_dbf)
+        # final_aoi_dbf = simpledbf.Dbf5(final_aoi_dbf)
 
         # convert dbf to pandas dataframe
-        final_aoi_df = final_aoi_dbf.to_dataframe()
+        # final_aoi_df = final_aoi_dbf.to_dataframe()
+        final_aoi_df = zstats_handler.gdf2pd(final_aoi_dbf)
 
         # reset index of final_aoi_df
         final_aoi_df = final_aoi_df.reset_index()
@@ -102,10 +86,15 @@ class Layer(object):
             merged = final_columns.user_cols(user_def_column_name, final_aoi_df, merged, analysis_names)
 
         else:
-            columns_to_keep = ['ID', 'tcd', 'year']
+            columns_to_keep = ['ID']
             columns_to_keep.extend(analysis_names)
 
             merged = merged[columns_to_keep]
+
+        # Renaming the VALUE column of Loss data into year
+        merged.rename(columns={'VALUE': 'year'}, inplace=True)
+        merged['year'] = merged['year'] + 2000
+        merged.sort_values(by='year')
 
         print('SAMPLE OF OUTPUT:')
         print (merged.head(5))
