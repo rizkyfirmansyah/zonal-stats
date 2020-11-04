@@ -76,4 +76,4 @@ try:
     logging.debug(("elapsed time: {}".format(datetime.datetime.now() - start)))
 finally:
     print('Shutdown your computer in a couple of seconds\n')
-    os.system("shutdown /s /t 1")
+    # os.system("shutdown /s /t 1")
