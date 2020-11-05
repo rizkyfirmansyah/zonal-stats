@@ -24,7 +24,7 @@ def value_to_tcd_year(value):
     }
     # divide the coded value by interval. if its 1.175, use int to get 1
     div = int(value / 40)
-
+    
     # look up that value to get TCD
     tcd = remap_dict[div][0]['tcd']
 
@@ -32,7 +32,7 @@ def value_to_tcd_year(value):
     sub = remap_dict[div][0]['sub']
 
     year = 2000 + (value - sub)
-
+   
     if year == 2000:
         year = "no loss"
 

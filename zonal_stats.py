@@ -4,7 +4,7 @@ import sys
 import logging
 import configparser
 
-logging.basicConfig(filename='log_zonal_stats.log', level=logging.DEBUG, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logging.basicConfig(filename='log_zonal_stats.log', level=logging.INFO, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 logging.getLogger().addHandler(logging.StreamHandler())
 
 from data_types.layer import Layer
@@ -13,7 +13,7 @@ from raster_functions import raster_prep
 from utilities import zstats_handler, post_processing, prep_shapefile
 
 start = datetime.datetime.now()
-logging.debug("\n\nHello! This is the beginning of the log")
+logging.warning("\n\nHello! This is the beginning of the log")
 
 # get user inputs from config file:
 config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config_file.ini")
@@ -73,7 +73,7 @@ if l.emissions is not None:
 # join possible tables (loss, emissions, extent, etc) and decode to loss year, tcd
 try:
     l.join_tables(threshold, user_def_column_name, output_file_name)
-    logging.debug(("elapsed time: {}".format(datetime.datetime.now() - start)))
+    logging.warning(("elapsed time: {}".format(datetime.datetime.now() - start)))
 finally:
     print('Shutdown your computer in a couple of seconds\n')
     # os.system("shutdown /s /t 1")

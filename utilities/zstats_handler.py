@@ -98,7 +98,7 @@ def main_script(layer, raster):
     start = start_id
     stop = end_id
 
-    logging.debug("Number of features: {}".format(end_id))
+    logging.info("Number of features: {}".format(end_id))
     zstats_subprocess = zstats(start_id, end_id, layer.final_aoi, raster.cellsize, raster.value, raster.zone, raster.analysis)
 
     # run using python3
@@ -140,11 +140,11 @@ def main_script(layer, raster):
 
             if p.returncode is None or p.returncode != 0:
                 print("failed")
-                logging.debug("WARNING: Feature id {} failed".format(start_id))
+                logging.warning("WARNING: Feature id {} failed".format(start_id))
                 feature_status[start_id] = False
 
                 # this will increase the start ID so we don't rerun the failed feature
                 start_id += 1
         except TypeError as e:
-            logging.debug("Type Error during zonal stats subprocess. {}".format(e))
-            break
+            logging.warning("Type Error during zonal stats subprocess. {}".format(e))
+            pass

@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import arcpy
 import sys
+import logging
 
 from utilities import zstats_handler
 from utilities import post_processing, final_columns
@@ -53,19 +54,25 @@ class Layer(object):
         # convert original SUM values into the right units
         for index, item in enumerate(analysis_names):
 
-            if item == 'forest_loss':
-                analysis_names[index] = 'forest_loss_ha'
+            try:
+                if item == 'forest_loss':
+                    analysis_names[index] = 'forest_loss_ha'
 
-                self.forest_loss['forest_loss'] = self.forest_loss.forest_loss.astype(float)
-                self.forest_loss['forest_loss_ha'] = self.forest_loss['forest_loss'] / 10000
+                    self.forest_loss['forest_loss'] = self.forest_loss.forest_loss.astype(float)
+                    self.forest_loss['forest_loss_ha'] = self.forest_loss['forest_loss'] / 10000
 
-            if item == 'forest_extent':
-                analysis_names[index] = 'forest_extent_ha'
-                self.forest_extent['forest_extent_ha'] = self.forest_extent['forest_extent'] / 10000
+                if item == 'forest_extent':
+                    analysis_names[index] = 'forest_extent_ha'
+                    self.forest_extent['forest_extent_ha'] = self.forest_extent['forest_extent'] / 10000
 
-            if item == 'biomass_weight':
-                analysis_names[index] = 'biomass_weight_Tg'
-                self.biomass_weight['biomass_weight_Tg'] = self.biomass_weight['biomass_weight'] / 1000000
+                if item == 'biomass_weight':
+                    analysis_names[index] = 'biomass_weight_Tg'
+                    self.biomass_weight['biomass_weight_Tg'] = self.biomass_weight['biomass_weight'] / 1000000
+            
+            except TypeError as e:
+                logging.warning("Type Error during joining table after zonal stats. {}".format(e))
+                pass
+
 
         # join all the data frames together on Value and ID. Value is the tcd/loss code (41 = loss in 2001 at 1-10%tcd
         # or loss in 2001 at >30% tcd. ID is the unique ID of the feature in the shapefile

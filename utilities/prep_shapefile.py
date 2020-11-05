@@ -56,8 +56,9 @@ def delete_database():
 
 def build_analysis(analysis_requested):
     # if analysis is emissions, we still need to run forest_loss
-    if not "forest_loss" in analysis_requested:
-        analysis_requested.append('forest_loss')
+    if "biomass_weight" in analysis_requested or "emissions" in analysis_requested:
+        if not "forest_loss" in analysis_requested:
+            analysis_requested.append('forest_loss')
 
     return analysis_requested
 
@@ -98,5 +99,5 @@ def average_pixel_size(mask):
 
             avg_pix_size = get_area(row[0])
 
-            print(avg_pix_size)
+            print("Average Pixel Area: {}".format(avg_pix_size))
     return avg_pix_size
