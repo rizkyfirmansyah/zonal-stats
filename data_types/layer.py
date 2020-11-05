@@ -52,9 +52,12 @@ class Layer(object):
         analysis_names = [x.columns.values[3] for x in df_list]
 
         # convert original SUM values into the right units
-        for index, item in enumerate(analysis_names):
+        if len(df_list) == 1 and "forest_extent" in df_list:
+            analysis_names[index] = 'forest_extent_ha'
+            self.forest_extent['forest_extent_ha'] = self.forest_extent['forest_extent'] / 10000
 
-            try:
+        else:
+            for index, item in enumerate(analysis_names):
                 if item == 'forest_loss':
                     analysis_names[index] = 'forest_loss_ha'
 
@@ -68,11 +71,6 @@ class Layer(object):
                 if item == 'biomass_weight':
                     analysis_names[index] = 'biomass_weight_Tg'
                     self.biomass_weight['biomass_weight_Tg'] = self.biomass_weight['biomass_weight'] / 1000000
-            
-            except TypeError as e:
-                logging.warning("Type Error during joining table after zonal stats. {}".format(e))
-                pass
-
 
         # join all the data frames together on Value and ID. Value is the tcd/loss code (41 = loss in 2001 at 1-10%tcd
         # or loss in 2001 at >30% tcd. ID is the unique ID of the feature in the shapefile

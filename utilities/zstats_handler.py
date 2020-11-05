@@ -147,4 +147,4 @@ def main_script(layer, raster):
                 start_id += 1
         except TypeError as e:
             logging.warning("Type Error during zonal stats subprocess. {}".format(e))
-            pass
+            break
