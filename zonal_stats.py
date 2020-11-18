@@ -13,7 +13,7 @@ from raster_functions import raster_prep
 from utilities import zstats_handler, post_processing, prep_shapefile
 
 start = datetime.datetime.now()
-logging.warning("\n\nHello! This is the beginning of the log")
+logging.info("\n\nHello! This is the beginning of the log")
 
 # get user inputs from config file:
 config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config_file.ini")
@@ -25,10 +25,65 @@ config_dict = config['inputs']
 analysis = [x.strip() for x in config_dict['analysis'].split(",")]
 shapefile = config_dict['shapefile']
 threshold = config_dict['threshold']
+tcd_categorized = config_dict['tcd_categorized']
 geodatabase = config_dict['geodatabase']
 user_def_column_name = config_dict['user_def_column_name']
 col_name = "FID"  # if this is in a gdb, make sure it assigns it OBJECT_ID
 output_file_name = config_dict['output_file_name']
+
+# Create a handler for default input config file
+def initInputRasterVariable():
+    global area, forest, biomass, tcd, loss
+    try:
+        if config_dict['area'] is not None or not config_dict['area']:
+            area = config_dict['area']
+        else:
+            area = ''
+    except KeyError:
+        area = 'area'
+        
+    try:
+        if config_dict['forest'] is not None or not config_dict['forest']:
+            forest = config_dict['forest']
+        else:
+            forest = ''
+    except KeyError:
+        forest = ''
+
+    try:
+        if config_dict['biomass'] is not None or not config_dict['biomass']:
+            biomass = config_dict['biomass']
+        else:
+            biomass = ''
+    except KeyError:
+        biomass = ''
+        
+    try:
+        if config_dict['loss'] is not None or not config_dict['loss']:
+            loss = config_dict['loss']
+        else:
+            loss = ''
+    except KeyError:
+        loss = 'loss'
+        
+    try:
+        if config_dict['tcd'] is not None or not config_dict['tcd']:
+            tcd = config_dict['tcd']
+        else:
+            tcd = ''
+    except KeyError:
+        tcd = 'tcd'
+
+
+    return area, forest, biomass, tcd, loss
+
+initInputRasterVariable()
+
+logging.info("Categorizing TCD? {}".format(tcd_categorized))
+logging.info("Area defined as = {}".format(area))
+logging.info("Forest Extent defined as = {}".format(forest))
+logging.info("Forest Loss defined as = {}".format(loss))
+logging.info("Biomass defined as = {}".format(biomass))
 
 # delete existing database so duplicate data isn't appended
 prep_shapefile.delete_database()
@@ -37,7 +92,7 @@ prep_shapefile.delete_database()
 analysis_requested = prep_shapefile.build_analysis(analysis)
 
 # remap the tcd mosaic and apply a raster function that adds tcd + loss year mosaics
-raster_prep.remap_threshold(geodatabase, threshold)
+# raster_prep.remap_threshold(geodatabase, threshold)
 
 # create layer object. this just sets up the properties that will later be filled in for each analysis
 l = Layer(shapefile, col_name)
@@ -52,8 +107,9 @@ l.project_source_aoi()
 # run forest_loss and emissions
 
 for analysis_name in analysis_requested:
+
     # create raster object.
-    r = Raster(analysis_name, geodatabase)
+    r = Raster(analysis_name, geodatabase, area, forest, loss, tcd, biomass)
 
     # run zstats, put results into sql db.
     zstats_handler.main_script(l, r)
@@ -71,9 +127,5 @@ if l.emissions is not None:
     l.emissions = post_processing.biomass_to_mtc02(l)
 
 # join possible tables (loss, emissions, extent, etc) and decode to loss year, tcd
-try:
-    l.join_tables(threshold, user_def_column_name, output_file_name)
-    logging.warning(("elapsed time: {}".format(datetime.datetime.now() - start)))
-finally:
-    print('Shutdown your computer in a couple of seconds\n')
-    # os.system("shutdown /s /t 1")
+l.join_tables(tcd_categorized, threshold, user_def_column_name, output_file_name)
+logging.info(("elapsed time: {}".format(datetime.datetime.now() - start)))

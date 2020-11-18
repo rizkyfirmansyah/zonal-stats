@@ -22,9 +22,10 @@ def value_to_tcd_year(value):
         7: [{'tcd': '51-75 %', 'sub': 280}],
         8: [{'tcd': '76-100 %', 'sub': 320}]
     }
+
     # divide the coded value by interval. if its 1.175, use int to get 1
     div = int(value / 40)
-    
+
     # look up that value to get TCD
     tcd = remap_dict[div][0]['tcd']
 
@@ -32,40 +33,29 @@ def value_to_tcd_year(value):
     sub = remap_dict[div][0]['sub']
 
     year = 2000 + (value - sub)
-   
+
     if year == 2000:
         year = "no loss"
 
     return tcd, year
 
+def value_to_tcd_year_each(value):
+    """
+    Returns all the value of zonal stats into tcd and year, which preserve the value of tcd 0 - 100
+    value : value from zonal stats (multiplied by forest (x1) and added with remapping tcd raster) 
+    """
 
-def generate_list_columns(intersect, intersect_col):
+    remap_dict = [dict(tcd=i, sub=(i+1)*40) for i in range(101)]
 
-    columns_to_add = []
-    if len(intersect_col) > 0:
+    div = int(value / 40)
 
-        columns_to_add.append(intersect_col)
+    # accessing the value by minus 1 since python slicing start with 0 index
+    tcd = remap_dict[div-1]['tcd']
+    sub = remap_dict[div-1]['sub']
 
-    intersect_filename = intersect.split('\\')[-1]
-    admin_dict = [{'adm0': {1: "ISO"}, 'adm1': {2: "ID_1"}, 'adm2': {3: "ID_2"}, 'adm3': {4: "ID_3"},
-                   'adm4': {5: "ID_4"}, 'adm5': {6: "ID_5"}}]
+    year = 2000 + (value - sub)
 
-    mydict = admin_dict[0]
-    try:
-        # incrementally add all admin levels for whatever admin level is intersected.
-        # example: adm2 will ad id_2, id_1, iso
-        for key, value in mydict[intersect_filename].items():
-            id_num = key
-        for key, value in mydict.items():
+    if year == 2000:
+        year = "no loss"
 
-            for i in range(0, id_num + 1):
-                try:
-                    columns_to_add.append(mydict[key][i])
-
-                except KeyError:
-                    pass
-
-    except KeyError:
-        pass
-
-    return columns_to_add
+    return tcd, year
