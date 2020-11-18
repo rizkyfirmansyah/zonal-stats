@@ -13,7 +13,7 @@ from raster_functions import raster_prep
 from utilities import zstats_handler, post_processing, prep_shapefile
 
 start = datetime.datetime.now()
-logging.info("\n\nHello! This is the beginning of the log")
+logging.info("\n\n{} BEGINNING LOG {}".format('='*5, '='*5))
 
 # get user inputs from config file:
 config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config_file.ini")
