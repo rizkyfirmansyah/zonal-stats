@@ -2,8 +2,11 @@
 analysis = forest_loss, emissions
 shapefile = C:\Users\concessions.shp
 threshold = all
+tcd_categorized = no
 geodatabase = C:\Users\mosaics.gdb
-output_file_name = loss_in_peru_concessions
+area = area_intact_degraded
+forest = degraded
+output_file_name = provincial_degraded_forest_extent_tcd
 intersect = C:\Users\peru.shp
 intersect_col = admin_name
-user_def_column_name = concessions_id
+user_def_column_name = id_adm2

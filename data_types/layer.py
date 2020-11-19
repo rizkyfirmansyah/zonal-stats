@@ -84,11 +84,16 @@ class Layer(object):
         # values-calculated-from-a-pre?rq=1
         # tcd and year columns is equal to the first and second output from the function: value_to_tcd_year
 
-        try:
-            merged['tcd'], merged['year'] = list(zip(*merged["VALUE"].map(post_processing.value_to_tcd_year_each)))
-        except KeyError:
-            logging.info("oops, loss mosaic doesn't have the arithmetic function applied. Refer to readme file")
-            # sys.exit()
+        if tcd_categorized == "yes":
+            try:
+                merged['tcd'], merged['year'] = list(zip(*merged["VALUE"].map(post_processing.value_to_tcd_year)))
+            except KeyError:
+                logging.info("oops, loss mosaic doesn't have the arithmetic function applied. Refer to readme file")
+        else:
+            try:
+                merged['tcd'], merged['year'] = list(zip(*merged["VALUE"].map(post_processing.value_to_tcd_year_each)))
+            except KeyError:
+                logging.info("oops, loss mosaic doesn't have the arithmetic function applied. Refer to readme file")
 
         # the value_to_tcd_year function is good for when user runs all thresholds, but not just one.
         # so, overwrite the tcd column when it comes back
@@ -106,6 +111,7 @@ class Layer(object):
         # get rid of undesired columns here
         del merged['ID']
         del merged['index']
+        del merged['ha']
         if "forest_loss" in merged.columns:
             del merged['forest_loss']
         if "forest_extent" in merged.columns:

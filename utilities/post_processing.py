@@ -44,6 +44,17 @@ def value_to_tcd_year_each(value):
     Returns all the value of zonal stats into tcd and year, which preserve the value of tcd 0 - 100
     value : value from zonal stats (multiplied by forest (x1) and added with remapping tcd raster) 
     """
+    """
+    You cannot do process forest_extent and forest_loss at the same task to elaborate within this function
+    since it will give you: IndexError: list index out of range
+    In your remap function:
+        loss -> +tcd xforest
+        forest -> xtcd
+        
+        then, forest_loss -> +tcd xtcd
+        max_number -> 4040 x 4040 = 16321600
+
+    """
 
     remap_dict = [dict(tcd=i, sub=(i+1)*40) for i in range(101)]
 

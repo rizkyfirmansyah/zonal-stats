@@ -87,11 +87,16 @@ In the main folder is a file called config_file.ini.sample. Rename this to confi
 <br />**shapefile**
 <br />**threhsold**
 <br />**geodatabase**
+<br />**area**
+<br />**forest**
 <br />**output_file_name**
 
 Other options:
-- **analysis**: forest_loss, emissions, forest_extent, biomass_weight
+- **analysis**: forest_loss, emissions, forest_extent, biomass_weight. Choose one if you would like to elaborate analysis into each tree cover density (0-100) and specifying tcd_categorized = no; Otherwise the program raises IndexError: list index out of range.
+- **area**: area. If you define the area geodatabase as area, you can remove this input. Just beware to not define the value as blank.
+- **forest**: forest. Same as the area input above.
 - **threshold**:  10, 15, 20, 25, 30, 50, 75, all. The "all" option creates each bin. 10-15, 15-20....75-100. You can then add the totals in various combinations
+- **tcd_categorized**: yes, no. If you would like to elaborate all the forest loss and extent on each tree cover density, choose no.  
 - **output_file_name**: the name of the output csv file
 - **intersect**: if you choose to intersect the shapefile with another boundary, specify the other boundary here
 - **intersect_col**: a column that uniquely identifies the intersect file
