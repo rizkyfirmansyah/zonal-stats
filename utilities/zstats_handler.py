@@ -21,7 +21,7 @@ def gdf2pd(dbfile):
     return df
 
 
-def zstats(start, stop, final_aoi, cellsize, value, zone, analysis):
+def zstats(start, stop, final_aoi, cellsize, value, zone, analysis, database_name, intersect, intersect_col):
 
     arcpy.CheckOutExtension("Spatial")
     arcpy.env.overwriteOutput = True
@@ -30,7 +30,7 @@ def zstats(start, stop, final_aoi, cellsize, value, zone, analysis):
         print("prepping feature id {}".format(i))
 
         # select one individual feature from the input shapefile
-        mask = prep_shapefile.zonal_stats_mask(final_aoi, i)
+        mask = prep_shapefile.zonal_stats_mask(final_aoi, i, intersect, intersect_col)
 
         scratch_wkspc = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'scratch.gdb')
 
@@ -65,7 +65,7 @@ def zstats(start, stop, final_aoi, cellsize, value, zone, analysis):
         df.VALUE = df.VALUE.astype(int)
 
         # name of the sql database to store the sql table
-        zstats_results_db = os.path.join(tables_dir, 'zstats_results_db.db')
+        zstats_results_db = os.path.join(tables_dir, database_name)
 
         # create a connection to the sql database
         conn = sqlite3.connect(zstats_results_db)
@@ -86,7 +86,7 @@ def zstats(start, stop, final_aoi, cellsize, value, zone, analysis):
         print('process succeeded for id {0}'.format(i))
 
 
-def main_script(layer, raster):
+def main_script(layer, raster, database_name, intersect, intersect_col):
 
     # this is the shapefile after being projected
     final_aoi = layer.final_aoi
@@ -99,52 +99,10 @@ def main_script(layer, raster):
     stop = end_id
 
     logging.info("Number of features: {}".format(end_id))
-    zstats_subprocess = zstats(start_id, end_id, layer.final_aoi, raster.cellsize, raster.value, raster.zone, raster.analysis)
+    zstats_subprocess = zstats(start_id, end_id, layer.final_aoi, raster.cellsize, raster.value, raster.zone, raster.analysis, database_name, intersect, intersect_col)
 
     # run using python3
     executable = sys.executable
 
     script_cmd = [executable, zstats_subprocess, raster.value,
                   raster.zone, layer.final_aoi, raster.cellsize, raster.analysis]
-
-    # expected_complete_total = len(list(range(start_id, end_id)))
-    # feature_status = {}
-
-    # while len(feature_status) < expected_complete_total: # if there is an error, write a message but keep going
-
-    #     cmd = script_cmd + [str(start_id), str(end_id)]
-
-    #     # this runs the analysis. send to a for-loop that will run zstats for each feature ID
-    #     try:
-    #         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-    #         # for each line that comes back from the subprocess, if "succeeded" is in the line
-    #         # increase counter by 1.
-    #         for line in iter(p.stdout.readline, b''):
-
-    #             arcpy.AddMessage(line)
-
-    #             # Each line that comes back from the subprocess represents 1 feature/ID
-    #             # We need to keep track of this in case a feature fails so we can skip it
-
-    #             if b'debug' in line:
-    #                 pass
-    #             else:
-    #                 if b'process succeeded' in line:
-    #                     feature_status[start_id] = True
-    #                     start_id += 1
-
-    #         p.wait()
-    #         # Since no lines are returned from sub if it fails, add this: get the return code from the failure,
-    #         # as long as it isn't 0, its a failure, and increment the counter by 1 so it starts on the next feautre        
-
-    #         if p.returncode is None or p.returncode != 0:
-    #             print("failed")
-    #             logging.warning("WARNING: Feature id {} failed".format(start_id))
-    #             feature_status[start_id] = False
-
-    #             # this will increase the start ID so we don't rerun the failed feature
-    #             start_id += 1
-    #     except TypeError as e:
-    #         logging.warning("Type Error during zonal stats subprocess. {}".format(e))
-    #         break

@@ -4,52 +4,45 @@ import math
 import arcpy
 import logging
 
-
-def intersect_file(intersect_file, intersect_col=None):
-
-    intersect_aoi_basename = os.path.basename(intersect_file)
-    intersect_calc = {'adm2': """!FC_NAME! +"_"+!ISO!+ str(!ID_1!)+'d'+ str(!ID_2!)""",
-                      'adm1': """!FC_NAME! +"_"+!ISO!+ str(!ID_1!)""",
-                      'adm0': """!FC_NAME! +"_"+!ISO!"""}
-
-    try:
-        return intersect_calc[intersect_aoi_basename]
-    except:
-        print("user defined intersect field")
-        exp = """!FC_NAME!+"_"+str(!{}!)""".format(str(intersect_col))
-
-        return exp
-
-
-def intersect(final_aoi, intersect_aoi, root_dir, intersect_col=None):
+def intersect_gp(final_aoi, intersect, intersect_col, workspace):
 
     arcpy.env.overwriteOutput = True
-    arcpy.env.workspace = os.path.join(root_dir, 'shapefile')
+    arcpy.env.workspace = workspace
 
-    intersected_file = os.path.join(root_dir, 'shapefile', "intersect.shp")
-    arcpy.Intersect_analysis([final_aoi, intersect_aoi], intersected_file)
+    intersected_file = "intersect.shp"
+    out_file = "shapefile.shp"
+    intersect_col = ';'.join(intersect_col)
+
+    arcpy.Intersect_analysis([final_aoi, intersect], intersected_file)
+    try:
+        arcpy.Dissolve_management(in_features=intersected_file, out_feature_class=out_file, dissolve_field=intersect_col, statistics_fields="", multi_part="MULTI_PART", unsplit_lines="DISSOLVE_LINES")
+    except:
+        logging.info(arcpy.GetMessages(2))
 
     print("intersected with boundary\n")
 
     return intersected_file
 
 
-def zonal_stats_mask(final_aoi, i):
-
+def zonal_stats_mask(final_aoi, i, intersect, intersect_col):
+    arcpy.env.overwriteOutput = True
     workspace = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "shapefile")
 
     exp = """"FID" = {}""".format(int(i))
 
+    if intersect:
+       intersect_gp(final_aoi, intersect, intersect_col, workspace)
+
     mask = os.path.join(workspace, "shapefile.shp")
 
-    arcpy.FeatureClassToFeatureClass_conversion(final_aoi, workspace, "shapefile.shp", exp)
+    arcpy.FeatureClassToFeatureClass_conversion(mask, workspace, "zonal_shapefile.shp", exp)
 
     return mask
 
 
-def delete_database():
+def delete_database(database_name):
     tables_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    zstats_results_db = os.path.join(tables_dir, 'tables', 'zstats_results_db.db')
+    zstats_results_db = os.path.join(tables_dir, 'tables', database_name)
     
     if os.path.exists(zstats_results_db):
         print("deleting database")

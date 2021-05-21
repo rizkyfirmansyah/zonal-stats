@@ -41,12 +41,12 @@ class Raster(object):
                                                                                 os.path.basename(self.value),
                                                                                                  self.cellsize))
 
-    def db_to_df(self, l):
+    def db_to_df(self, l, database_name):
 
         # convert sql table to df
         print("converting sql table to df")
         tables_dir = os.path.join(l.root_dir, 'tables')
-        zstats_results_db = os.path.join(tables_dir, 'zstats_results_db.db')
+        zstats_results_db = os.path.join(tables_dir, database_name)
 
         conn = sqlite3.connect(zstats_results_db)
         # self.analysis is like: forest_loss and/or emissions, etc

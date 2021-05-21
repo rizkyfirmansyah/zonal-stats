@@ -1,5 +1,5 @@
 import pandas as pd
-
+import logging
 
 def biomass_to_mtc02(layer):
     layer.emissions.SUM = layer.emissions.SUM.astype(float)
@@ -65,7 +65,8 @@ def value_to_tcd_year_each(value):
     sub = remap_dict[div-1]['sub']
 
     year = 2000 + (value - sub)
-
+    logging.info("YEAR: {}".format(year))
+    
     if year == 2000:
         year = "no loss"
 

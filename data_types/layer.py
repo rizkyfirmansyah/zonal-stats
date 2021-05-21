@@ -109,9 +109,12 @@ class Layer(object):
         merged = pd.merge(merged, final_aoi_df, left_on='ID', right_on='index')
         
         # get rid of undesired columns here
-        del merged['ID']
-        del merged['index']
-        del merged['ha']
+        if "ID" in merged.columns:
+            del merged['ID']
+        if "index" in merged.columns:
+            del merged['index']
+        if "ha" in merged.columns:
+            del merged['ha']
         if "forest_loss" in merged.columns:
             del merged['forest_loss']
         if "forest_extent" in merged.columns:
