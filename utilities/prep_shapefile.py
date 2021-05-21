@@ -4,18 +4,17 @@ import math
 import arcpy
 import logging
 
-def intersect_gp(final_aoi, intersect, intersect_col, workspace):
+def intersect_gp(shapefile, intersect, intersect_col, workspace, out_final_aoi):
 
     arcpy.env.overwriteOutput = True
     arcpy.env.workspace = workspace
 
     intersected_file = "intersect.shp"
-    out_file = "shapefile.shp"
     intersect_col = ';'.join(intersect_col)
 
-    arcpy.Intersect_analysis([final_aoi, intersect], intersected_file)
+    arcpy.Intersect_analysis([shapefile, intersect], intersected_file)
     try:
-        arcpy.Dissolve_management(in_features=intersected_file, out_feature_class=out_file, dissolve_field=intersect_col, statistics_fields="", multi_part="MULTI_PART", unsplit_lines="DISSOLVE_LINES")
+        arcpy.Dissolve_management(in_features=intersected_file, out_feature_class=out_final_aoi, dissolve_field=intersect_col, statistics_fields="", multi_part="MULTI_PART", unsplit_lines="DISSOLVE_LINES")
     except:
         logging.info(arcpy.GetMessages(2))
 
@@ -24,18 +23,15 @@ def intersect_gp(final_aoi, intersect, intersect_col, workspace):
     return intersected_file
 
 
-def zonal_stats_mask(final_aoi, i, intersect, intersect_col):
+def zonal_stats_mask(final_aoi, i):
     arcpy.env.overwriteOutput = True
     workspace = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "shapefile")
 
     exp = """"FID" = {}""".format(int(i))
 
-    if intersect:
-       intersect_gp(final_aoi, intersect, intersect_col, workspace)
-
     mask = os.path.join(workspace, "shapefile.shp")
 
-    arcpy.FeatureClassToFeatureClass_conversion(mask, workspace, "zonal_shapefile.shp", exp)
+    arcpy.FeatureClassToFeatureClass_conversion(final_aoi, workspace, "shapefile.shp", exp)
 
     return mask
 

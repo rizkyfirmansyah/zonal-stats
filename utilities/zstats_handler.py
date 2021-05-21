@@ -21,7 +21,7 @@ def gdf2pd(dbfile):
     return df
 
 
-def zstats(start, stop, final_aoi, cellsize, value, zone, analysis, database_name, intersect, intersect_col):
+def zstats(start, stop, final_aoi, cellsize, value, zone, analysis, database_name):
 
     arcpy.CheckOutExtension("Spatial")
     arcpy.env.overwriteOutput = True
@@ -30,7 +30,7 @@ def zstats(start, stop, final_aoi, cellsize, value, zone, analysis, database_nam
         print("prepping feature id {}".format(i))
 
         # select one individual feature from the input shapefile
-        mask = prep_shapefile.zonal_stats_mask(final_aoi, i, intersect, intersect_col)
+        mask = prep_shapefile.zonal_stats_mask(final_aoi, i)
 
         scratch_wkspc = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'scratch.gdb')
 
@@ -86,7 +86,7 @@ def zstats(start, stop, final_aoi, cellsize, value, zone, analysis, database_nam
         print('process succeeded for id {0}'.format(i))
 
 
-def main_script(layer, raster, database_name, intersect, intersect_col):
+def main_script(layer, raster, database_name):
 
     # this is the shapefile after being projected
     final_aoi = layer.final_aoi
@@ -99,7 +99,7 @@ def main_script(layer, raster, database_name, intersect, intersect_col):
     stop = end_id
 
     logging.info("Number of features: {}".format(end_id))
-    zstats_subprocess = zstats(start_id, end_id, layer.final_aoi, raster.cellsize, raster.value, raster.zone, raster.analysis, database_name, intersect, intersect_col)
+    zstats_subprocess = zstats(start_id, end_id, layer.final_aoi, raster.cellsize, raster.value, raster.zone, raster.analysis, database_name)
 
     # run using python3
     executable = sys.executable

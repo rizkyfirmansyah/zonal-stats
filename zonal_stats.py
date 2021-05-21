@@ -3,7 +3,7 @@ import datetime
 import sys
 import logging
 import configparser
-
+import arcpy
 from data_types.layer import Layer
 from data_types.raster import Raster
 from raster_functions import raster_prep
@@ -101,13 +101,22 @@ analysis_requested = prep_shapefile.build_analysis(analysis)
 # raster_prep.remap_threshold(geodatabase, threshold)
 
 # create layer object. this just sets up the properties that will later be filled in for each analysis
-l = Layer(shapefile, col_name)
 
-# set final aoi equal to the shapefile
-l.final_aoi = shapefile
+# set final aoi equal to the shapefile or intersect result if provided
+workspace = os.path.join(os.path.dirname(os.path.realpath(__file__)), "shapefile")
+out_final_aoi = os.path.join(workspace, "final_aoi.shp")
 
-# project input to wgs84
-l.project_source_aoi()
+if intersect:
+    prep_shapefile.intersect_gp(shapefile, intersect, intersect_col, workspace, out_final_aoi)
+    l = Layer(out_final_aoi, intersect_col)
+    l.final_aoi = out_final_aoi
+    l.project_source_aoi()
+else:
+    l = Layer(shapefile, col_name)
+    l.final_aoi = shapefile
+    l.project_source_aoi()
+
+logging.info("FINAL LAYER AOI: {}".format(l.final_aoi))
 
 # loop over the analysis. If forest_loss or biomass_weight, will just be one analysis. if emissions, need to
 # run forest_loss and emissions
@@ -118,7 +127,7 @@ for analysis_name in analysis_requested:
     r = Raster(analysis_name, geodatabase, area, forest, loss, tcd, biomass)
 
     # run zstats, put results into sql db.
-    zstats_handler.main_script(l, r, database_name, intersect, intersect_col)
+    zstats_handler.main_script(l, r, database_name)
 
     # get results from sql to pandas df
     r.db_to_df(l, database_name)

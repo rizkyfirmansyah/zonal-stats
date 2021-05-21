@@ -107,6 +107,7 @@ class Layer(object):
         final_aoi_df = final_aoi_df.reset_index()
 
         merged = pd.merge(merged, final_aoi_df, left_on='ID', right_on='index')
+        merged = merged[merged['year'] > 2000]
         
         # get rid of undesired columns here
         if "ID" in merged.columns:
